@@ -1,0 +1,41 @@
+#!/bin/bash
+# wine-bottle v. 0.2
+# (c) 2009 Linux-Tipps.blogspot.com, (c) 2009 Joost @ http://home.student.utwente.nl/j.vanderhof
+# newest version at http://linux-tipps.blogspot.com/2009/03/how-to-make-your-own-wine-bottles.html
+# published under the GPL v. 3.0 http://gplv3.fsf.org/
+INSTALLDIR="$HOME/.wine/bottles"; #Set this to where you want to put your Wine bottles
+[ $# -lt 1 ] && #if you gave no parameters
+echo "Please give me parameters! Usage:" &&
+echo "Execute a program : $0 \"BottleName\" \"Program\"" &&
+echo "Configure a bottle : $0 --conf \"BottleName\"" &&
+echo "List bottles : $0 --list" &&
+exit 1;
+[ $# -lt 2 -a $1 != "--list" ] && #if you didn't give the right parameters
+echo "Please give me at least two parameters or a --list parameter! Usage:" &&
+echo "Execute a program : $0 \"BottleName\" \"Program\"" &&
+echo "Configure a bottle : $0 --conf \"BottleName\"" &&
+echo "List bottles : $0 --list" &&
+exit 1;
+[ $1 == "--list" ] && #if you want to list the bottles
+echo "Wine bottles in $INSTALLDIR:" &&
+ls -1 $INSTALLDIR &&
+exit 1;
+[ -d "$INSTALLDIR" ] || ( #if installdir is not existing
+echo "Root of Wine bottles not existing: $INSTALLDIR" &&
+mkdir "$INSTALLDIR"
+) || ( #if installdir creation failed
+echo "Could not create installation Directory: \"$INSTALLDIR\"." &&
+exit 1);
+which wine || ( #if wine is not found
+echo "Wine not found, please install it first" &&
+exit 1);
+[ $1 == "--conf" ] && #if you wish to configure a bottle
+WINEPREFIX="$INSTALLDIR/$2/" winecfg &&
+exit 1;
+[ $1 == "--tricks" ] && #if you wish to configure a bottle
+WINEPREFIX="$INSTALLDIR/$2/" winetricks &&
+exit 1;
+#finally, the only remaining possibility is you want to run an application
+PREF="$1";
+shift; #drop first parameter to leave the command with its parameters
+WINEPREFIX="$INSTALLDIR/$PREF/" wine "${@}";
